@@ -29,7 +29,7 @@ export default function Section1({ onSelectIkan }: Section1Props) {
               width={200}
               height={200}
               className="mb-4"
-              loading="lazy"
+              loading="eager"
             />
           </button>
           <button
@@ -42,7 +42,7 @@ export default function Section1({ onSelectIkan }: Section1Props) {
               width={200}
               height={200}
               className="mb-4"
-              loading="lazy"
+              loading="eager"
             />
           </button>
         </div>

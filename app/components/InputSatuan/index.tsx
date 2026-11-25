@@ -40,7 +40,7 @@ export default function InputSatuan({
         className={`flex items-center border-l px-4 font-medium ${
           disabled
             ? "border-gray-700 bg-gray-900 text-gray-500 opacity-50"
-            : "border-gray-600 text-gray-400"
+            : "border-gray-600 text-white"
         }`}
       >
         {satuan}

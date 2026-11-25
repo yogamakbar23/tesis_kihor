@@ -11,11 +11,17 @@ interface Section4Props {
   survivalRate: number;
   bobotTarget: number;
   hasilKg: number;
+  suhu: number;
+  kedalamanDifuser: number;
+  onKembali: () => void;
   onLanjut: (
     hasilKg: number,
     rasioPakan: number,
     proteinPakan: number,
     keteranganPakan: string,
+    suhu: number,
+    kedalamanDifuser: number,
+    fbk: number,
     pakanHarianGram?: number,
   ) => void;
 }
@@ -26,15 +32,20 @@ export default function Section4({
   survivalRate,
   bobotTarget,
   hasilKg,
+  suhu,
+  kedalamanDifuser,
+  onKembali,
   onLanjut,
 }: Section4Props) {
   const [pilihan, setPilihan] = useState<3 | 5 | "custom">(3);
   const [satuanCustom, setSatuanCustom] = useState("%");
   const [persentaseCustom, setPersentaseCustom] = useState("");
   const [proteinPakan, setProteinPakan] = useState("");
+  const [beratKeringPakan, setBeratKeringPakan] = useState("");
 
   const hitungPakanDanLanjut = () => {
     const protein = Number(proteinPakan);
+    const beratKering = Number(beratKeringPakan);
 
     let rasioPakan: number;
     let keteranganPakan: string;
@@ -70,7 +81,26 @@ export default function Section4({
       return;
     }
 
-    onLanjut(hasilKg, rasioPakan, protein, keteranganPakan, pakanHarianGram);
+    if (
+      !beratKeringPakan ||
+      !Number.isFinite(beratKering) ||
+      beratKering <= 0 ||
+      beratKering > 100
+    ) {
+      alert("Masukkan berat kering pakan lebih dari 0 hingga 100%.");
+      return;
+    }
+
+    onLanjut(
+      hasilKg,
+      rasioPakan,
+      protein,
+      keteranganPakan,
+      suhu,
+      kedalamanDifuser,
+      beratKering / 100,
+      pakanHarianGram,
+    );
   };
 
   const pilihPersentase = (nilai: 3 | 5) => {
@@ -187,14 +217,39 @@ export default function Section4({
             min={0}
             max={100}
           />
-
-          <button
-            type="button"
-            onClick={hitungPakanDanLanjut}
-            className="cursor-pointer rounded-lg bg-green-500 px-5 py-2 font-bold text-white hover:bg-green-700"
+          <label
+            htmlFor="beratKeringPakan"
+            className="font-semibold text-[#efc07b]"
           >
-            Hitung
-          </button>
+            Berat Kering Pakan
+          </label>
+
+          <InputSatuan
+            id="beratKeringPakan"
+            value={beratKeringPakan}
+            onChange={setBeratKeringPakan}
+            placeholder="Masukkan persentase"
+            satuan="%"
+            min={0.1}
+            max={100}
+          />
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onKembali}
+              className="cursor-pointer rounded-lg bg-[#efc07b] px-5 py-2 font-bold text-[#1a1a2e] hover:bg-[#f5cf9a]"
+            >
+              Kembali
+            </button>
+            <button
+              type="button"
+              onClick={hitungPakanDanLanjut}
+              className="cursor-pointer rounded-lg bg-green-500 px-5 py-2 font-bold text-white hover:bg-green-700"
+            >
+              Hitung
+            </button>
+          </div>
         </div>
       </div>
     </section>

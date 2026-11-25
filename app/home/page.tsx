@@ -10,6 +10,7 @@ import Section4 from "../components/Section/Section4";
 import Section5 from "../components/Section/Section5";
 import Section6 from "../components/Section/Section6";
 import type { BentukKolam } from "../components/Section/Section2";
+import FluxLines from "../components/FluxLines";
 
 type Ikan = "lele" | "nila";
 
@@ -23,13 +24,22 @@ export default function Home() {
     survivalRate: number;
     bobotTarget: number;
     hasilKg: number;
+    suhu: number;
+    kedalamanDifuser: number;
   } | null>(null);
   const [dataPakan, setDataPakan] = useState<{
     hasilKg: number;
     rasioPakan: number;
     proteinPakan: number;
     keteranganPakan: string;
+    suhu: number;
+    kedalamanDifuser: number;
+    fbk: number;
     pakanHarianGram?: number;
+  } | null>(null);
+  const [dataFilterMekanis, setDataFilterMekanis] = useState<{
+    digunakan: boolean;
+    luasJapmatM2: number | null;
   } | null>(null);
   const [section6Aktif, setSection6Aktif] = useState(false);
   const [jenisBiofilter, setJenisBiofilter] = useState<
@@ -45,12 +55,38 @@ export default function Home() {
     setVolumeKolam(null);
     setVolumeAir(null);
     setHasilPerhitungan(null);
+    setDataPakan(null);
+    setDataFilterMekanis(null);
+    setSection6Aktif(false);
+    setJenisBiofilter(null);
+  }
+
+  function kembaliKeSection1() {
+    setIkan(null);
+    kembaliKeSection2();
+  }
+
+  function kembaliKeSection3() {
+    setHasilPerhitungan(null);
+    setDataPakan(null);
+    setDataFilterMekanis(null);
+    setSection6Aktif(false);
+    setJenisBiofilter(null);
+  }
+
+  function kembaliKeSection4() {
+    setDataPakan(null);
+    setDataFilterMekanis(null);
+    setSection6Aktif(false);
+    setJenisBiofilter(null);
   }
 
   function hitungDanTampilkanHasil(
     tebarAwal: number,
     survivalRate: number,
     bobotTarget: number,
+    suhu: number,
+    kedalamanDifuser: number,
   ) {
     const hasilKg = (tebarAwal * (survivalRate / 100) * bobotTarget) / 1000;
 
@@ -59,6 +95,8 @@ export default function Home() {
       survivalRate,
       bobotTarget,
       hasilKg,
+      suhu,
+      kedalamanDifuser,
     });
   }
 
@@ -67,22 +105,33 @@ export default function Home() {
     rasioPakan: number,
     proteinPakan: number,
     keteranganPakan: string,
+    suhu: number,
+    kedalamanDifuser: number,
+    fbk: number,
     pakanHarianGram?: number,
   ) {
     setSection6Aktif(false);
+    setJenisBiofilter(null);
+    setDataFilterMekanis(null);
     setDataPakan({
       hasilKg: hasilPerhitungan?.hasilKg ?? 0,
       rasioPakan,
       proteinPakan,
       keteranganPakan,
+      suhu,
+      kedalamanDifuser,
+      fbk,
       pakanHarianGram,
     });
   }
 
   function lanjutKeSection6(
     pilihanBiofilter: "kaldnes-k1" | "bioball",
+    filterMekanis: boolean,
+    luasJapmatM2: number | null,
   ) {
     setJenisBiofilter(pilihanBiofilter);
+    setDataFilterMekanis({ digunakan: filterMekanis, luasJapmatM2 });
     setSection6Aktif(true);
   }
 
@@ -97,8 +146,29 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#1a1a2e]">
-      <div className="flex h-14 w-full bg-[#efc07b] items-center justify-between px-2 top-0 fixed">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-[#1a1a2e]">
+      <div className="pointer-events-none fixed inset-0 z-0 opacity-10">
+        <FluxLines
+          colors={["#ffffff", "#ffffff", "#ffffff"]}
+          glow={2}
+          rimWidth={0.2}
+          lineWidth={1}
+          flowDirection="down"
+          mouseInteraction
+          clickSwirl
+          speed={0.5}
+          scale={1.6}
+          turbulence={1}
+          fluidity={0.1}
+          sharpness={2.5}
+          shimmer={1.5}
+          mouseStrength={1}
+          mouseRadius={0.35}
+          intro
+          lightMode={false}
+        />
+      </div>
+      <div className="fixed top-0 z-20 flex h-14 w-full items-center justify-between bg-[#efc07b] px-2">
         <div className="flex items-center gap-2">
           <Image
             src="/icons/Lambang UGM-biru.png"
@@ -123,25 +193,42 @@ export default function Home() {
           </ul>
         </nav>
       </div>
-      <div className="mt-14 p-8">
+      <div className="relative z-10 mt-14 p-8">
         {ikan === null ? (
           <Section1 onSelectIkan={pilihIkan} />
         ) : bentukKolam === null ||
           volumeKolam === null ||
           volumeAir === null ? (
-          <Section2 onComplete={selesaiMenghitung} />
+          <Section2
+            onBack={kembaliKeSection1}
+            onComplete={selesaiMenghitung}
+          />
         ) : dataPakan !== null ? (
           section6Aktif ? (
             jenisBiofilter !== null && (
-              <Section6 {...dataPakan} jenisBiofilter={jenisBiofilter} />
+              <Section6
+                {...dataPakan}
+                jenisBiofilter={jenisBiofilter}
+                filterMekanis={dataFilterMekanis?.digunakan ?? false}
+                luasJapmatM2={dataFilterMekanis?.luasJapmatM2 ?? null}
+                onKembali={() => setSection6Aktif(false)}
+              />
             )
           ) : (
-            <Section5 {...dataPakan} onLanjut={lanjutKeSection6} />
+            <Section5
+              {...dataPakan}
+              initialBiofilter={jenisBiofilter}
+              initialFilterMekanis={dataFilterMekanis?.digunakan ?? null}
+              initialLuasJapmatM2={dataFilterMekanis?.luasJapmatM2 ?? null}
+              onKembali={kembaliKeSection4}
+              onLanjut={lanjutKeSection6}
+            />
           )
         ) : hasilPerhitungan !== null ? (
           <Section4
             ikan={ikan}
             {...hasilPerhitungan}
+            onKembali={kembaliKeSection3}
             onLanjut={lanjutKeSection5}
           />
         ) : (

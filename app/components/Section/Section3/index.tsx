@@ -15,6 +15,8 @@ interface Section3Props {
     tebarAwal: number,
     survivalRate: number,
     bobotTarget: number,
+    suhu: number,
+    kedalamanDifuser: number,
   ) => void;
 }
 
@@ -30,11 +32,15 @@ export default function Section3({
   const [tebarAwal, setTebarAwal] = useState("");
   const [survivalRate, setSurvivalRate] = useState("");
   const [bobotTarget, setBobotTarget] = useState("");
+  const [suhu, setSuhu] = useState("");
+  const [kedalamanDifuser, setKedalamanDifuser] = useState("");
 
   const hitungHasil = () => {
     const tebar = Number(tebarAwal);
     const sr = Number(survivalRate);
     const bobot = Number(bobotTarget);
+    const suhuValue = Number(suhu);
+    const kedalamanDifuserValue = Number(kedalamanDifuser);
 
     if (tebar < 0 || sr < 0 || sr > 100 || bobot < 0) {
       alert(
@@ -43,13 +49,28 @@ export default function Section3({
       return;
     }
 
-    onHitung(tebar, sr, bobot);
+    if (
+      !suhu ||
+      !kedalamanDifuser ||
+      !Number.isFinite(suhuValue) ||
+      !Number.isFinite(kedalamanDifuserValue) ||
+      suhuValue < 0 ||
+      suhuValue > 34 ||
+      kedalamanDifuserValue <= 0
+    ) {
+      alert(
+        "Masukkan suhu antara 0-34 °C dan kedalaman difuser lebih dari 0 cm.",
+      );
+      return;
+    }
+
+    onHitung(tebar, sr, bobot, suhuValue, kedalamanDifuserValue);
   };
 
   return (
     <section className="flex gap-35 px-6 text-white">
       <div>
-        <h3 className="text-3xl font-bold">Informasi Kolam</h3>
+        <h3 className="text-3xl font-bold">Informasi Bak</h3>
 
         <div className="flex flex-col gap-3 mt-4">
           <div className="flex gap-3 justify-between items-center rounded-xl border border-white/10 bg-[#242442] p-5 text-center">
@@ -70,7 +91,7 @@ export default function Section3({
 
           <div className="flex gap-3 justify-between items-center rounded-xl border border-white/10 bg-[#242442] p-5 text-center">
             <h4 className="text-lg font-semibold text-[#efc07b]">
-              Bentuk Kolam:
+              Bentuk Bak:
             </h4>
             <div className="flex items-center gap-2">
               <Image
@@ -81,7 +102,9 @@ export default function Section3({
                       ? "/images/kolam_persegi.png"
                       : bentuk === "lingkaran"
                         ? "/images/kolam_lingkaran.png"
-                        : "/images/kolam_persegi.png"
+                        : bentuk === "kerucut"
+                          ? "/images/kolam_kerucut.png"
+                          : "/images/kolam_persegi.png"
                 }
                 alt={`Kolam ${bentuk}`}
                 width={50}
@@ -95,14 +118,16 @@ export default function Section3({
                     ? "Persegi Panjang"
                     : bentuk === "lingkaran"
                       ? "Lingkaran"
-                      : "Custom"}
+                      : bentuk === "kerucut"
+                        ? "Kerucut"
+                        : "Custom"}
               </p>
             </div>
           </div>
 
           <div className="flex gap-3 justify-between items-center rounded-xl border border-white/10 bg-[#242442] p-5 text-center">
             <h4 className="text-lg font-semibold text-[#efc07b]">
-              Volume Kolam:
+              Volume Bak:
             </h4>
             <div className="flex items-center gap-2">
               <p className="text-4xl font-bold text-green-400">
@@ -114,7 +139,7 @@ export default function Section3({
 
           <div className="flex gap-3 justify-between items-center rounded-xl border border-white/10 bg-[#242442] p-5 text-center">
             <h4 className="text-lg font-semibold text-[#efc07b]">
-              Volume Air Kolam:
+              Volume Air:
             </h4>
             <div className="flex items-center gap-2">
               <p className="text-4xl font-bold text-green-400">
@@ -131,7 +156,7 @@ export default function Section3({
             onClick={onKembali}
             className="rounded-lg bg-[#efc07b] px-5 py-2 font-bold text-[#1a1a2e] hover:bg-[#f5cf9a] cursor-pointer"
           >
-            Hitung Ulang
+            Kembali
           </button>
           <button
             type="button"
@@ -188,6 +213,37 @@ export default function Section3({
           onChange={setBobotTarget}
           placeholder="Masukkan bobot target"
           satuan="g"
+          min={0}
+          disabled={!dikonfirmasi}
+        />
+        <label
+          htmlFor="suhu"
+          className={`mb-2 block text-lg font-semibold ${dikonfirmasi ? "" : "opacity-50"}`}
+        >
+          Suhu (T)
+        </label>
+        <InputSatuan
+          id="suhu"
+          value={suhu}
+          onChange={setSuhu}
+          placeholder="Masukkan suhu"
+          satuan="°C"
+          min={0}
+          max={34}
+          disabled={!dikonfirmasi}
+        />
+        <label
+          htmlFor="kedalamanDifuser"
+          className={`mb-2 block text-lg font-semibold ${dikonfirmasi ? "" : "opacity-50"}`}
+        >
+          Kedalaman Difuser (D)
+        </label>
+        <InputSatuan
+          id="kedalamanDifuser"
+          value={kedalamanDifuser}
+          onChange={setKedalamanDifuser}
+          placeholder="Masukkan kedalaman difuser"
+          satuan="cm"
           min={0}
           disabled={!dikonfirmasi}
         />

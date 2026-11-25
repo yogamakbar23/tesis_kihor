@@ -5,7 +5,11 @@ interface Section6Props {
   rasioPakan: number;
   proteinPakan: number;
   keteranganPakan: string;
+  fbk: number;
   pakanHarianGram?: number;
+  filterMekanis: boolean;
+  luasJapmatM2: number | null;
+  onKembali: () => void;
   jenisBiofilter: "kaldnes-k1" | "bioball";
 }
 
@@ -14,7 +18,11 @@ export default function Section6({
   rasioPakan,
   proteinPakan,
   keteranganPakan,
+  fbk,
   pakanHarianGram,
+  filterMekanis,
+  luasJapmatM2,
+  onKembali,
   jenisBiofilter,
 }: Section6Props) {
   const pemberianPakanKg =
@@ -32,6 +40,14 @@ export default function Section6({
   const aMedia = (pTanKg * 1000) / atr;
   const vMedia = aMedia / ssa;
   const vWadah = vMedia / 0.7;
+  const ptss = 0.25 * fbk * pemberianPakanKg;
+  const mb = ptss * 0.3;
+  const jumlahBrush = Math.ceil(mb / 0.0001435);
+  const aj = (9.6 * ptss) / fbk;
+  const jumlahJapmat =
+    filterMekanis && luasJapmatM2 !== null && luasJapmatM2 > 0
+      ? Math.ceil(aj / luasJapmatM2)
+      : null;
 
   return (
     <section className="flex flex-col gap-6 text-white">
@@ -41,7 +57,7 @@ export default function Section6({
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded-xl border border-white/10 bg-[#242442] p-5">
-          <p className="text-[#efc07b]">Pemberian Pakan Harian</p>
+          <p className="text-[#efc07b]">Pemberian Pakan Maksimum</p>
           <p className="mt-1 text-2xl font-bold">
             {pemberianPakanKg.toLocaleString("id-ID", {
               maximumFractionDigits: 3,
@@ -67,6 +83,27 @@ export default function Section6({
           })}{" "}
           kg/hari
         </p>
+      </div>
+
+      <div className="flex gap-4 w-full ">
+        <div className="flex-1 rounded-xl border border-white/10 bg-[#242442] p-5">
+          <p className="text-[#efc07b]">Kebutuhan Brush Filter</p>
+          <p className="mt-2 text-3xl font-bold">
+            {jumlahBrush.toLocaleString("id-ID")} brush
+          </p>
+        </div>
+        {filterMekanis && (
+          <div className="flex-1 rounded-xl border border-white/10 bg-[#242442] p-5">
+            <p className="text-[#efc07b]">Kebutuhan Filter Japmat</p>
+            {jumlahJapmat === null ? (
+              <p className="mt-2 text-xl font-bold">—</p>
+            ) : (
+              <p className="mt-2 text-3xl font-bold">
+                {jumlahJapmat.toLocaleString("id-ID")} lembar
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="rounded-xl border border-white/10 bg-[#242442] p-5">
@@ -132,11 +169,10 @@ export default function Section6({
       </div>
       <button
         type="button"
-        onClick={() => window.location.reload()}
-        disabled={jenisBiofilter === null}
-        className="cursor-pointer rounded-lg bg-[#efc07b] px-5 py-2 font-bold text-[#1a1a2e] hover:bg-[#f5cf9a] disabled:cursor-not-allowed disabled:opacity-50"
+        onClick={onKembali}
+        className="cursor-pointer rounded-lg bg-[#efc07b] px-5 py-2 font-bold text-[#1a1a2e] hover:bg-[#f5cf9a]"
       >
-        Rincian Lanjutan
+        Kembali
       </button>
     </section>
   );
